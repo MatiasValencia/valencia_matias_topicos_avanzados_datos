@@ -2,5 +2,5 @@
 
 
 
-!\[Diagrama del Base de Datos Sesión 1](images/diagrama.png)
+!\[Diagrama del Base de Datos Sesión 1](img/diagrama.png)
 
