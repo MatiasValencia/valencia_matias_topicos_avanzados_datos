@@ -154,5 +154,53 @@ EXCEPTION
 END;
 /
 
+-- Práctica sesión 5.1
+DECLARE
+	CURSOR producto_cursor IS
+	SELECT Nombre, Precio
+	FROM Productos
+	ORDER BY Precio;
+	v_nombre VARCHAR2(50);
+	v_precio NUMBER;
+BEGIN
+	OPEN producto_cursor;
+	LOOP
+	FETCH producto_cursor INTO v_nombre, v_precio;
+	EXIT WHEN producto_cursor%NOTFOUND;
+	DBMS_OUTPUT.PUT_LINE('Nombre producto: ' || v_nombre || ', Precio: $' || v_precio);
+	END LOOP;
+	CLOSE producto_cursor;
+END;
+/
+
+-- Práctica sesión 5.2
+DECLARE
+	CURSOR producto_cursor(producto_id NUMBER) IS
+	SELECT Nombre, Precio
+	FROM Productos
+	WHERE ProductoID = producto_id
+	FOR UPDATE;
+	v_nombre VARCHAR2(50);
+	v_precio NUMBER;
+BEGIN
+	OPEN producto_cursor;
+	LOOP
+	FETCH producto_cursor INTO v_nombre, v_precio;
+	EXIT WHEN producto_cursor%NOTFOUND;
+	UPDATE Productos
+	SET Precio = v_precio * 1.1
+	WHERE CURRENT OF producto_cursor
+	DBMS_OUTPUT.PUT_LINE('Nombre producto: ' || v_nombre || ', Precio original: $' || v_precio || ', Nuevo precio: $' || (v_precio * 1.1));
+	END LOOP;
+	CLOSE producto_cursor;
+EXCEPTION
+	WHEN OTHERS THEN
+	DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+	IF producto_cursor%ISOPEN THEN
+	CLOSE producto_cursor;
+	END IF;
+END;
+/
+
 -- Commit final
 COMMIT;
