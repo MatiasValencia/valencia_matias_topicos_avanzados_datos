@@ -132,6 +132,26 @@ END;
 -- Verificar datos
 SELECT * FROM DetallesPedidos;
 
+-- Práctica Sesión 2
+
+-- 2 sentencias SELECT simples
+SELECT * FROM Clientes;
+SELECT * FROM Pedidos;
+
+-- 2 sentencias SELECT utilizando funciones agregadas sobre su base de datos
+SELECT COUNT(*) FROM Productos;
+SELECT AVG(Precio) FROM Productos;
+
+-- 2 sentencias SELECT con expresiones regulares
+SELECT * FROM Clientes WHERE Ciudad='Santiago';
+SELECT * FROM Productos WHERE Precio>=1000;
+
+-- 2 vistas
+CREATE VIEW ClientesRegiones AS
+SELECT * FROM Clientes WHERE Ciudad!='Santiago';
+CREATE VIEW Pedidos3oMas AS
+SELECT * FROM DetallesPedidos WHERE Cantidad>=3;
+
 -- Práctica Sesión 4.1
 DECLARE
 	v_total NUMBER;
