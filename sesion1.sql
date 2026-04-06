@@ -152,6 +152,41 @@ SELECT * FROM Clientes WHERE Ciudad!='Santiago';
 CREATE VIEW Pedidos3oMas AS
 SELECT * FROM DetallesPedidos WHERE Cantidad>=3;
 
+
+-- Práctica Sesión 3
+SET SERVEROUTPUT ON;
+
+DECLARE
+    v_producto_id NUMBER := 1;
+    v_precio NUMBER;
+BEGIN
+    SELECT Precio
+    INTO v_precio
+    FROM Productos
+    WHERE ProductoID = v_producto_id;
+
+    -- Si no hay productos, se asigna 0
+    IF v_precio IS NULL THEN
+        v_precio := 0;
+    END IF;
+
+    /*
+    Criterios de clasificación:
+    - Muy caro: precio > 1000
+    - Balanceado: 500 <= precio <= 1000
+    - Muy barato: precio < 500
+    */
+
+    IF v_precio > 1000 THEN
+        DBMS_OUTPUT.PUT_LINE('Producto muy caro. Valor: $' || v_precio);
+    ELSIF v_precio >= 500 THEN
+        DBMS_OUTPUT.PUT_LINE('Producto de precio balanceado. Valor: $' || v_precio);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Producto muy barato. Valor: $' || v_precio);
+    END IF;
+END;
+/
+
 -- Práctica Sesión 4.1
 DECLARE
 	v_total NUMBER;
