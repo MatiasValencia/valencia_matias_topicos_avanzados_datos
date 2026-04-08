@@ -270,29 +270,30 @@ END;
 /
 DECLARE
 	CURSOR producto_cursor(producto_id NUMBER) IS
-	SELECT Nombre, Precio
-	FROM Productos
-	WHERE ProductoID = producto_id
-	FOR UPDATE;
+        SELECT Nombre, Precio
+        FROM Productos
+        WHERE ProductoID = producto_id
+        FOR UPDATE;
 	v_nombre VARCHAR2(50);
 	v_precio NUMBER;
 BEGIN
-	OPEN producto_cursor;
+	OPEN producto_cursor(1);
 	LOOP
-	FETCH producto_cursor INTO v_nombre, v_precio;
-	EXIT WHEN producto_cursor%NOTFOUND;
-	UPDATE Productos
-	SET Precio = v_precio * 1.1
-	WHERE CURRENT OF producto_cursor
-	DBMS_OUTPUT.PUT_LINE('Nombre producto: ' || v_nombre || ', Precio original: $' || v_precio || ', Nuevo precio: $' || (v_precio * 1.1));
+        FETCH producto_cursor INTO v_nombre, v_precio;
+        EXIT WHEN producto_cursor%NOTFOUND;
+
+        UPDATE Productos;
+        SET Precio = v_precio * 1.1
+        WHERE CURRENT OF producto_cursor
+        DBMS_OUTPUT.PUT_LINE('Nombre producto: ' || v_nombre || ', Precio original: $' || v_precio || ', Nuevo precio: $' || (v_precio * 1.1));
 	END LOOP;
 	CLOSE producto_cursor;
 EXCEPTION
 	WHEN OTHERS THEN
-	DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
-	IF producto_cursor%ISOPEN THEN
-	CLOSE producto_cursor;
-	END IF;
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        IF producto_cursor%ISOPEN THEN
+            CLOSE producto_cursor;
+        END IF;
 END;
 /
 
