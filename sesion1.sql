@@ -282,9 +282,10 @@ BEGIN
         FETCH producto_cursor INTO v_nombre, v_precio;
         EXIT WHEN producto_cursor%NOTFOUND;
 
-        UPDATE Productos;
+        UPDATE Productos
         SET Precio = v_precio * 1.1
-        WHERE CURRENT OF producto_cursor
+        WHERE CURRENT OF producto_cursor;
+
         DBMS_OUTPUT.PUT_LINE('Nombre producto: ' || v_nombre || ', Precio original: $' || v_precio || ', Nuevo precio: $' || (v_precio * 1.1));
 	END LOOP;
 	CLOSE producto_cursor;
