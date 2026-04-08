@@ -161,7 +161,6 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Ejercicio Sesión 3');
 END;
 /
-SET SERVEROUTPUT ON;
 
 DECLARE
     v_producto_id NUMBER := 1;
@@ -201,19 +200,19 @@ END;
 /
 DECLARE
 	v_total NUMBER;
-	total_invalida EXCEPTION;
+	total_invalido EXCEPTION;
 BEGIN
 	SELECT Total INTO v_total
 	FROM Pedidos
 	WHERE PedidoID = 1;
 
 	IF v_total < 0 THEN
-	RAISE total_invalido
+	RAISE total_invalido;
 	END IF;
 
-	DBMS_OUTPUT.PUT_LINE('Total del pedido: ' || v_cantidad);
+	DBMS_OUTPUT.PUT_LINE('Total del pedido: ' || v_total);
 EXCEPTION
-	WHEN total_invalida THEN
+	WHEN total_invalido THEN
 	DBMS_OUTPUT.PUT_LINE('Error: El total no puede ser negativo.');
 	WHEN NO_DATA_FOUND THEN
 	DBMS_OUTPUT.PUT_LINE('Error: Pedido no encontrado.');
@@ -225,7 +224,6 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Ejercicio 2 Sesión 4');
 END;
 /
-SET SERVEROUTPUT ON;
 
 DECLARE
     e_duplicado EXCEPTION;
