@@ -298,5 +298,60 @@ EXCEPTION
 END;
 /
 
+-- Ejercicio 1 Sesión 6
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio 1 Sesion 6');
+END;
+/
+CREATE OR REPLACE TYPE producto_obj AS OBJECT ( -- Creación del objeto
+    producto_id NUMBER,
+    nombre VARCHAR2(50),
+    precio NUMBER,
+    MEMBER FUNCTION get_info RETURN VARCHAR2
+);
+/
+
+CREATE OR REPLACE TYPE BODY producto_obj AS  -- Creación del Body
+    MEMBER FUNCTION get_info RETURN VARCHAR2 IS
+    BEGIN
+        RETURN 'ID: ' || producto_id || ', Nombre: ' || nombre || ', Precio: $' || precio;
+    END;
+END;
+/
+
+CREATE TABLE productos_obj OF producto_obj ( -- Creación tabla del objeto
+    producto_id PRIMARY KEY
+);
+
+-- Inserción de datos
+INSERT INTO productos_obj VALUES (1, 'Laptop', 1200);
+INSERT INTO productos_obj VALUES (2, 'Mouse', 25);
+
+-- Get info
+SELECT p.get_info() FROM productos_obj p;
+
+-- Cursor
+DECLARE
+    CURSOR productos_cursor IS
+        SELECT VALUE(p) FROM productos_obj para
+        ORDER BY precio;
+    v_producto_obj producto_obj;
+BEGIN
+    OPEN productos_cursor;
+    LOOP
+        FETCH productos_cursor INTO v_producto_obj;
+        EXIT WHEN productos_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(v_producto_obj.get_info());
+    END LOOP;
+    CLOSE productos_cursor;
+END;
+/
+
+-- Ejercicio 2 Sesion 6
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio 2 Sesion 6');
+END;
+/
+
 -- Commit final
 COMMIT;
