@@ -133,7 +133,10 @@ END;
 SELECT * FROM DetallesPedidos;
 
 -- Práctica Sesión 2
-
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio Sesión 2');
+END;
+/
 -- 2 sentencias SELECT simples
 SELECT * FROM Clientes;
 SELECT * FROM Pedidos;
@@ -154,6 +157,10 @@ SELECT * FROM DetallesPedidos WHERE Cantidad>=3;
 
 
 -- Práctica Sesión 3
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio Sesión 3');
+END;
+/
 SET SERVEROUTPUT ON;
 
 DECLARE
@@ -188,6 +195,10 @@ END;
 /
 
 -- Práctica Sesión 4.1
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio 1 Sesión 4');
+END;
+/
 DECLARE
 	v_total NUMBER;
 	total_invalida EXCEPTION;
@@ -209,7 +220,33 @@ EXCEPTION
 END;
 /
 
+-- Práctica sesión 4.2
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio 2 Sesión 4');
+END;
+/
+SET SERVEROUTPUT ON;
+
+DECLARE
+    e_duplicado EXCEPTION;
+    PRAGMA EXCEPTION_INIT(e_duplicado, -8001); -- Código TT8001
+BEGIN
+    INSERT INTO Clientes (ClienteID, Nombre, Ciudad)
+    VALUES (1, 'Jose Luis Caceres', 'Coquimbo'); -- ID duplicado
+    DBMS_OUTPUT.PUT_LINE('Inserción exitosa!');
+EXCEPTION
+    WHEN e_duplicado THEN
+        DBMS_OUTPUT.PUT_LINE('Error TimesTen TT8001: ID Duplicada!');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error inesperado: ' || SQLERRM);
+END;
+/
+
 -- Práctica sesión 5.1
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio 1 Sesión 5');
+END;
+/
 DECLARE
 	CURSOR producto_cursor IS
 	SELECT Nombre, Precio
@@ -229,6 +266,10 @@ END;
 /
 
 -- Práctica sesión 5.2
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio 2 Sesión 5');
+END;
+/
 DECLARE
 	CURSOR producto_cursor(producto_id NUMBER) IS
 	SELECT Nombre, Precio
