@@ -333,7 +333,7 @@ SELECT p.get_info() FROM productos_obj p;
 -- Cursor
 DECLARE
     CURSOR productos_cursor IS
-        SELECT VALUE(p) FROM productos_obj para
+        SELECT VALUE(p) FROM productos_obj p
         ORDER BY precio;
     v_producto_obj producto_obj;
 BEGIN
@@ -352,6 +352,36 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Ejercicio 2 Sesion 6');
 END;
 /
+DECLARE
+    CURSOR producto_cursor_2(p_id NUMBER) IS
+        SELECT VALUE(p) FROM productos_obj p
+        WHERE p.producto_id = p_id
+        FOR UPDATE;
+    
+    v_producto producto_obj;
+    v_precio_original NUMBER;
+    v_precio_actualizado NUMBER;
 
+BEGIN
+    OPEN producto_cursor_2(1);
+    LOOP
+        FETCH producto_cursor_2 INTO v_producto;
+        EXIT WHEN producto_cursor_2%NOTFOUND;
+
+        v_precio_original := v_producto.precio;
+        v_precio_actualizado := v_producto.precio * 1.1;
+
+        UPDATE productos_obj
+        SET precio = v_precio_actualizado
+        WHERE CURRENT OF producto_cursor_2;
+
+        DBMS_OUTPUT.PUT_LINE('Nombre del producto: ' || v_producto.nombre);
+        DBMS_OUTPUT.PUT_LINE('Antes: ' || v_precio_original);
+        DBMS_OUTPUT.PUT_LINE('Ahora: ' || v_precio_actualizado);
+    END LOOP;
+
+    CLOSE producto_cursor_2;
+END;
+/
 -- Commit final
 COMMIT;
