@@ -383,5 +383,30 @@ BEGIN
     CLOSE producto_cursor_2;
 END;
 /
+
+-- Ejercicio 1 Sesion 7
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio 1 Sesion 7');
+END;
+/
+CREATE OR REPLACE PROCEDURE aumentar_precio_producto(p_producto_id IN NUMBER, p_porcentaje IN NUMBER) AS
+BEGIN
+    UPDATE Productos
+    SET Precio = Precio + ((Precio * p_porcentaje) / 100)
+    WHERE ProductoID = p_producto_id;
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Producto con ID ' || p_producto_id || ' no encontrado.');
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Precio del producto ' || p_producto_id || ' aumentado en un ' || p_porcentaje || '%.');
+    COMMIT;
+EXCEPTION
+    WHEN VALUE_ERROR THEN
+        DBMS_OUTPUT.PUT_LINE('Error: El precio debe ser un valor válido.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error inesperado: ' || SQLERRM);
+END;
+/
+
+EXEC aumentar_precio_producto(1, 20);
 -- Commit final
 COMMIT;
