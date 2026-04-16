@@ -68,6 +68,9 @@ BEGIN
     INSERT INTO Clientes VALUES (1, 'Juan Perez', 'Santiago', TO_DATE('1990-05-15', 'YYYY-MM-DD'));
     INSERT INTO Clientes VALUES (2, 'María Gomez', 'Valparaiso', TO_DATE('1985-10-20', 'YYYY-MM-DD'));
     INSERT INTO Clientes VALUES (3, 'Ana Lopez', 'Santiago', TO_DATE('1995-03-10', 'YYYY-MM-DD'));
+    INSERT INTO Clientes VALUES (4, 'Carlos Gonzalez', 'Santiago', TO_DATE('1978-04-23', 'YYYY-MM-DD'));
+    INSERT INTO Clientes VALUES (5, 'Jose Maria Carrasco', 'Antofagasta', TO_DATE('1992-01-11', 'YYYY-MM-DD'));
+    INSERT INTO Clientes VALUES (6, 'Guillermo Ferraz', 'La Serena', TO_DATE('1989-11-06', 'YYYY-MM-DD'));
     DBMS_OUTPUT.PUT_LINE('Datos insertados en Clientes.');
 END;
 /
@@ -75,9 +78,13 @@ END;
 -- Insertar datos en Pedidos
 BEGIN
     DBMS_OUTPUT.PUT_LINE('Insertando datos en Pedidos...');
-    INSERT INTO Pedidos VALUES (101, 1, 600, TO_DATE('2025-03-01', 'YYYY-MM-DD'));
-    INSERT INTO Pedidos VALUES (102, 1, 300, TO_DATE('2025-03-02', 'YYYY-MM-DD'));
-    INSERT INTO Pedidos VALUES (103, 2, 800, TO_DATE('2025-03-03', 'YYYY-MM-DD'));
+    INSERT INTO Pedidos VALUES (101, 1, 2800, TO_DATE('2025-03-01', 'YYYY-MM-DD'));
+    INSERT INTO Pedidos VALUES (102, 1, 250, TO_DATE('2025-03-02', 'YYYY-MM-DD'));
+    INSERT INTO Pedidos VALUES (103, 2, 150, TO_DATE('2025-03-03', 'YYYY-MM-DD'));
+    INSERT INTO Pedidos VALUES (104, 5, 160, TO_DATE('2023-01-08', 'YYYY-MM-DD'));
+    INSERT INTO Pedidos VALUES (105, 1, 75, TO_DATE('2025-07-28', 'YYYY-MM-DD'));
+    INSERT INTO Pedidos VALUES (106, 3, 230, TO_DATE('2023-12-18', 'YYYY-MM-DD'));
+    INSERT INTO Pedidos VALUES (107, 4, 1280, TO_DATE('2024-09-15', 'YYYY-MM-DD'));
     DBMS_OUTPUT.PUT_LINE('Datos insertados en Pedidos.');
 END;
 /
@@ -86,7 +93,12 @@ END;
 BEGIN
     DBMS_OUTPUT.PUT_LINE('Insertando datos en Productos...');
     INSERT INTO Productos VALUES (1, 'Laptop', 1200);
-    INSERT INTO Productos VALUES (2, 'Mouse', 25);
+    INSERT INTO Productos VALUES (2, 'Mouse', 80);
+    INSERT INTO Productos VALUES (3, 'Audifonos Inalambricos', 250);
+    INSERT INTO Productos VALUES (4, 'Teclado', 75);
+    INSERT INTO Productos VALUES (5, 'Pendrive USB 64 GB', 50);
+    INSERT INTO Productos VALUES (6, 'Disco Duro Externo 2 TB', 80);
+    INSERT INTO Productos VALUES (7, 'PC Gamer Escritorio', 2300);
     DBMS_OUTPUT.PUT_LINE('Datos insertados en Productos.');
 END;
 /
@@ -125,6 +137,14 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Insertando datos en DetallesPedidos...');
     INSERT INTO DetallesPedidos VALUES (1, 101, 1, 2); -- Pedido 101: 2 Laptops
     INSERT INTO DetallesPedidos VALUES (2, 101, 2, 5); -- Pedido 101: 5 Mouse
+    INSERT INTO DetallesPedidos VALUES (3, 102, 4, 1); -- Pedido 102: 1 Audífono Inalámbrico
+    INSERT INTO DetallesPedidos VALUES (4, 103, 5, 3); -- Pedido 103: 3 Pendrives USB
+    INSERT INTO DetallesPedidos VALUES (5, 104, 6, 2); -- Pedido 104: 2 Discos Duros Externos
+    INSERT INTO DetallesPedidos VALUES (6, 105, 4, 1); -- Pedido 105: 1 Teclado
+    INSERT INTO DetallesPedidos VALUES (7, 106, 2, 1); -- Pedido 106: 1 Mouse
+    INSERT INTO DetallesPedidos VALUES (8, 106, 4, 2); -- Pedido 106: 2 Teclados
+    INSERT INTO DetallesPedidos VALUES (9, 107, 1, 1); -- Pedido 107: 1 Laptop
+    INSERT INTO DetallesPedidos VALUES (10, 107, 6, 1); -- Pedido 107: 1 Disco Duro Externo
     DBMS_OUTPUT.PUT_LINE('Datos insertados en DetallesPedidos.');
 END;
 /
@@ -325,7 +345,12 @@ CREATE TABLE productos_obj OF producto_obj ( -- Creación tabla del objeto
 
 -- Inserción de datos
 INSERT INTO productos_obj VALUES (1, 'Laptop', 1200);
-INSERT INTO productos_obj VALUES (2, 'Mouse', 25);
+INSERT INTO productos_obj VALUES (2, 'Mouse', 80);
+INSERT INTO productos_obj VALUES (3, 'Audifonos Inalambricos', 250);
+INSERT INTO productos_obj VALUES (4, 'Teclado', 75);
+INSERT INTO productos_obj VALUES (5, 'Pendrive USB 64 GB', 50);
+INSERT INTO productos_obj VALUES (6, 'Disco Duro Externo 2 TB', 80);
+INSERT INTO productos_obj VALUES (7, 'PC Gamer Escritorio', 2300);
 
 -- Get info
 SELECT p.get_info() FROM productos_obj p;
@@ -407,6 +432,81 @@ EXCEPTION
 END;
 /
 
+-- Ejecución de procedimiento
 EXEC aumentar_precio_producto(1, 20);
+
+-- Ejercicio 1 - Preparación para la Prueba
+DECLARE
+	CURSOR pedido_cursor IS
+		SELECT p.PedidoID, p.Total, c.Nombre FROM Pedidos p
+		INNER JOIN Clientes c ON p.ClienteID = c.ClienteID
+		WHERE p.Total >= 500;
+	-- Variables
+	v_pedido_id NUMBER;
+	v_total NUMBER;
+	v_nombre_cliente VARCHAR2(50);
+BEGIN
+	OPEN pedido_cursor;
+	LOOP
+		FETCH pedido_cursor INTO v_pedido_id, v_total, v_nombre_cliente;
+		EXIT WHEN pedido_cursor%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE('Numero de pedido: ' || v_pedido_id || ' - Total: $' || v_total || ' - Cliente: ' || v_nombre_cliente);
+	END LOOP;
+	CLOSE pedido_cursor;
+END;
+/
+
+-- Ejercicio 2 - Preparación para la prueba
+DECLARE
+	CURSOR producto_cursor IS
+		SELECT p.Nombre, p.Precio FROM Productos p
+		WHERE p.Precio < 1000;
+	-- Variables
+	v_nombre_producto VARCHAR2(50);
+	v_precio NUMBER;
+BEGIN
+	OPEN producto_cursor;
+	LOOP
+		FETCH producto_cursor INTO v_nombre_producto, v_precio;
+		EXIT WHEN producto_cursor%NOTFOUND;
+		UPDATE Productos
+		SET Precio = v_precio * 1.15
+		WHERE CURRENT OF producto_cursor;
+		DBMS_OUTPUT.PUT_LINE('Nombre del producto: ' || v_nombre_producto || ' - Nuevo precio: $' || (v_precio * 1.15));
+	END LOOP;
+EXCEPTION
+	WHEN OTHERS THEN
+        	DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        IF producto_cursor%ISOPEN THEN
+        	CLOSE producto_cursor;
+        END IF;
+END;
+/
+
+-- Ejercicio 3 - Preparación para la prueba
+DECLARE
+	CURSOR clientes_cursor IS
+		SELECT c.Nombre, SUM(p.Total) FROM Clientes c
+		INNER JOIN Pedidos p ON c.ClienteID = p.ClienteID
+		WHERE SUM(p.Total) > 1000
+		GROUP BY c.Nombre;
+	-- Variables
+	v_nombre_cliente VARCHAR2(50);
+	v_suma_total NUMBER;
+BEGIN
+	OPEN clientes_cursor;
+	LOOP
+		FETCH clientes_cursor INTO v_nombre_cliente, v_suma_total;
+		EXIT WHEN clientes_cursor%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE('Nombre del cliente: ' || v_nombre_cliente || ' - Total acumulado en pedidos: $' || v_suma_total);
+	END LOOP;
+EXCEPTION
+	WHEN OTHERS THEN
+        	DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        IF clientes_cursor%ISOPEN THEN
+        	CLOSE clientes_cursor;
+        END IF;
+END;
+/
 -- Commit final
 COMMIT;
