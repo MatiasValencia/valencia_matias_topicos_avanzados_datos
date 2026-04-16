@@ -474,6 +474,7 @@ BEGIN
 		WHERE CURRENT OF producto_cursor;
 		DBMS_OUTPUT.PUT_LINE('Nombre del producto: ' || v_nombre_producto || ' - Nuevo precio: $' || (v_precio * 1.15));
 	END LOOP;
+	CLOSE producto_cursor;
 EXCEPTION
 	WHEN OTHERS THEN
         	DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
@@ -500,6 +501,7 @@ BEGIN
 		EXIT WHEN clientes_cursor%NOTFOUND;
 		DBMS_OUTPUT.PUT_LINE('Nombre del cliente: ' || v_nombre_cliente || ' - Total acumulado en pedidos: $' || v_suma_total);
 	END LOOP;
+	CLOSE clientes_cursor;
 EXCEPTION
 	WHEN OTHERS THEN
         	DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
