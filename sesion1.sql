@@ -460,7 +460,8 @@ END;
 DECLARE
 	CURSOR producto_cursor IS
 		SELECT p.Nombre, p.Precio FROM Productos p
-		WHERE p.Precio < 1000;
+		WHERE p.Precio < 1000
+		FOR UPDATE;
 	-- Variables
 	v_nombre_producto VARCHAR2(50);
 	v_precio NUMBER;
@@ -487,10 +488,10 @@ END;
 -- Ejercicio 3 - Preparación para la prueba
 DECLARE
 	CURSOR clientes_cursor IS
-		SELECT c.Nombre, SUM(p.Total) FROM Clientes c
+		SELECT c.Nombre, SUM(p.Total) AS TotalClientes FROM Clientes c
 		INNER JOIN Pedidos p ON c.ClienteID = p.ClienteID
-		WHERE SUM(p.Total) > 1000
-		GROUP BY c.Nombre;
+		GROUP BY c.Nombre
+		HAVING SUM(p.Total) > 1000;
 	-- Variables
 	v_nombre_cliente VARCHAR2(50);
 	v_suma_total NUMBER;
