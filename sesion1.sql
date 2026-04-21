@@ -432,6 +432,27 @@ EXCEPTION
 END;
 /
 
+-- Ejercicio 2 Sesion 7
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio 2 Sesion 7');
+END;
+/
+CREATE OR REPLACE PROCEDURE contar_pedidos_cliente (p_cliente_id IN NUMBER, p_cantidad OUT NUMBER) AS
+BEGIN
+    SELECT COUNT(*) INTO p_cantidad FROM Pedidos
+    WHERE ClienteID = p_cliente_id;
+
+    -- En caso de no haber pedidos, COUNT devolverá 0 automáticamente
+    IF p_cantidad IS NULL THEN
+        p_cantidad := 0;
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        p_cantidad := 0;
+        DBMS_OUTPUT.PUT_LINE('Este cliente no tiene pedidos');
+END;
+/
+
 -- Ejecución de procedimiento
 EXEC aumentar_precio_producto(1, 20);
 
@@ -511,5 +532,98 @@ EXCEPTION
         END IF;
 END;
 /
+
+-- Ejercicio 4 - Preparacion para la prueba
+DECLARE
+    CURSOR detalles_pedidos_cursor IS
+        SELECT dp.DetalleID, dp.PedidoID, dp.Cantidad FROM DetallesPedidos dp
+        INNER JOIN Pedidos p ON dp.PedidoID = p.PedidoId
+        WHERE p.FechaPedido < DATE('2025-03-02', 'YYYY-MM-DD')
+        FOR UPDATE OF dp.Cantidad;
+    -- Variables
+    v_detalle_id NUMBER;
+    v_pedido_id NUMBER;
+    v_cantidad NUMBER;
+    v_nueva_cantidad NUMBER;
+    v_contador NUMBER := 0;
+BEGIN
+    OPEN detalles_pedidos_cursor;
+    LOOP
+        FETCH detalles_pedidos_cursor INTO v_detalle_id, v_pedido_id, v_cantidad;
+        EXIT WHEN detalles_pedidos_cursor%NOTFOUND;
+        -- Aumentamos cantidad en 1
+        v_nueva_cantidad := v_cantidad + 1;
+        -- Actualizamos la cantidad
+        UPDATE DetallesPedidos
+        SET Cantidad = v_nueva_cantidad
+        WHERE CURRENT OF detalles_pedidos_cursor;
+        -- Imprimimos cambio
+        DBMS_OUTPUT.PUT_LINE('ID del Detalle: ' || v_detalle_id || ' - ID del pedido: ' || v_pedido_id || ' - Cantidad anterior: ' || v_cantidad || ' - Nueva cantidad: ' || v_nueva_cantidad);
+        v_contador := v_contador + 1;
+    END LOOP;
+    CLOSE detalles_pedidos_cursor;
+    -- Mostrar mensaje
+    IF v_contador = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No se encontraron detalles de pedidos antes del 02-03-2025.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Se actualizaron ' || v_contador || ' detalles de los pedidos.');
+    END IF;
+    -- Confirmamos los cambios
+    COMMIT;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No se encontraron datos.');
+    IF detalles_pedidos_cursor%ISOPEN THEN
+        CLOSE detalles_pedidos_cursor;
+    END IF;
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+/
+-- Ejercicio 5 - Preparacion para la prueba
+CREATE OR REPLACE TYPE cliente_obj AS OBJECT ( -- Creación del objeto
+    cliente_id NUMBER,
+    nombre VARCHAR2(50),
+    MEMBER FUNCTION get_info RETURN VARCHAR2
+);
+/
+
+CREATE OR REPLACE TYPE BODY producto_obj AS  -- Creación del Body
+    MEMBER FUNCTION get_info RETURN VARCHAR2 IS
+    BEGIN
+        RETURN 'ID: ' || cliente_id || ' - Nombre: ' || nombre;
+    END;
+END;
+/
+
+CREATE TABLE clientes_obj OF cliente_obj ( -- Creación tabla del objeto
+    cliente_id PRIMARY KEY
+);
+-- Insertamos datos
+INSERT INTO clientes_obj VALUES (1, 'Juan Perez');
+INSERT INTO clientes_obj VALUES (2, 'María Gomez');
+INSERT INTO clientes_obj VALUES (3, 'Ana Lopez');
+INSERT INTO clientes_obj VALUES (4, 'Carlos Gonzalez');
+INSERT INTO clientes_obj VALUES (5, 'Jose Maria Carrasco');
+INSERT INTO clientes_obj VALUES (6, 'Guillermo Ferraz');
+
+SELECT c.get_info() FROM clientes_obj c;
+
+-- Cursor
+DECLARE
+    CURSOR clientes_cursor IS
+        SELECT cliente_id, nombre FROM clientes_obj
+    v_cliente_obj cliente_obj;
+BEGIN
+    OPEN clientes_cursor;
+    LOOP
+        FETCH clientes_cursor INTO v_clientes_obj;
+        EXIT WHEN clientes_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(v_cliente_obj.get_info());
+    END LOOP;
+    CLOSE clientes_cursor;
+END;
+/
+
 -- Commit final
 COMMIT;
