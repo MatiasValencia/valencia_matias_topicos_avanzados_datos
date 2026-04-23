@@ -625,5 +625,32 @@ BEGIN
 END;
 /
 
+-- Ejercicio Sesion 10
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio Sesion 10');
+END;
+/
+CREATE OR REPLACE PROCEDURE actualizar_total_pedidos(
+    p_cliente_id IN NUMBER,
+    p_porcentaje IN NUMBER DEFAULT 10
+) AS
+BEGIN
+    UPDATE Pedidos
+    SET Total = Total + (Total * p_porcentaje / 100)
+    WHERE ClienteID = p_cliente_id;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Cliente con ID ' || p_cliente_id || ' no encontrado.');
+    END IF;
+
+    DBMS_OUTPUT.PUT_LINE('Total de los pedidos del cliente con ID ' || p_cliente_id || ' aumentados en un ' || p_porcentaje || '%.');
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        ROLLBACK;
+        RAISE;
+END;
+/
 -- Commit final
 COMMIT;
