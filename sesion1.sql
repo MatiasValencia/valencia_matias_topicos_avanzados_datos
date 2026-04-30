@@ -62,6 +62,21 @@ BEGIN
 END;
 /
 
+-- Crear tabla Inventario
+-- Crear tabla Productos
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Creando tabla Inventario...');
+    EXECUTE IMMEDIATE 'CREATE TABLE Inventario (
+        ProductoID NUMBER,
+        Nombre VARCHAR2(50),
+        Cantidad NUMBER,
+        CONSTRAINT pk_producto_id PRIMARY KEY (ProductoID),
+        CONSTRAINT fk_producto_id FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID)
+    )';
+    DBMS_OUTPUT.PUT_LINE('Tabla Inventario creada.');
+END;
+/
+
 -- Insertar datos en Clientes
 BEGIN
     DBMS_OUTPUT.PUT_LINE('Insertando datos en Clientes...');
@@ -103,6 +118,20 @@ BEGIN
 END;
 /
 
+-- Insertar datos en Inventario
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Insertando datos en Inventario...');
+    INSERT INTO Productos VALUES (1, 'Laptop', 76);
+    INSERT INTO Productos VALUES (2, 'Mouse', 84);
+    INSERT INTO Productos VALUES (3, 'Audifonos Inalambricos', 25);
+    INSERT INTO Productos VALUES (4, 'Teclado', 43);
+    INSERT INTO Productos VALUES (5, 'Pendrive USB 64 GB', 114);
+    INSERT INTO Productos VALUES (6, 'Disco Duro Externo 2 TB', 28);
+    INSERT INTO Productos VALUES (7, 'PC Gamer Escritorio', 18);
+    DBMS_OUTPUT.PUT_LINE('Datos insertados en Inventario.');
+END;
+/
+
 -- Confirmar los datos insertados antes de continuar
 COMMIT;
 
@@ -116,6 +145,7 @@ END;
 SELECT * FROM Clientes;
 SELECT * FROM Pedidos;
 SELECT * FROM Productos;
+SELECT * FROM Inventario;
 
 -- Crear tabla DetallesPedidos
 BEGIN
@@ -760,3 +790,18 @@ END;
 
 INSERT INTO DetallesPedidos (DetalleID, PedidoID, ProductoID, Cantidad) VALUES (11, 103, 3, -4)
 INSERT INTO DetallesPedidos (DetalleID, PedidoID, ProductoID, Cantidad) VALUES (11, 103, 3, 3)
+
+-- Ejercicio 1 Sesion 13
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ejercicio 1 Sesion 13');
+END;
+/
+CREATE OR REPLACE PROCEDURE actualizar_inventario_pedido(p_pedido_id IN NUMBER) AS
+    CURSOR detalle_cursor IS
+        SELECT ProductoID, Cantidad FROM DetallesPedidos
+        WHERE PedidoID = p_pedido_id;
+        v_cantidad NUMBER;
+        v_nueva_cantidad NUMBER;
+BEGIN
+    
+    SELECT 
