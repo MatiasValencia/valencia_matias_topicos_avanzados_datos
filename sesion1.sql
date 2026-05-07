@@ -568,7 +568,7 @@ DECLARE
     CURSOR detalles_pedidos_cursor IS
         SELECT dp.DetalleID, dp.PedidoID, dp.Cantidad FROM DetallesPedidos dp
         INNER JOIN Pedidos p ON dp.PedidoID = p.PedidoId
-        WHERE p.FechaPedido < DATE('2025-03-02', 'YYYY-MM-DD')
+        WHERE p.FechaPedido < TO_DATE('2025-03-02', 'YYYY-MM-DD')
         FOR UPDATE OF dp.Cantidad;
     -- Variables
     v_detalle_id NUMBER;
