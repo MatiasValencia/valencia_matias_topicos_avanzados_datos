@@ -121,13 +121,13 @@ END;
 -- Insertar datos en Inventario
 BEGIN
     DBMS_OUTPUT.PUT_LINE('Insertando datos en Inventario...');
-    INSERT INTO Productos VALUES (1, 'Laptop', 76);
-    INSERT INTO Productos VALUES (2, 'Mouse', 84);
-    INSERT INTO Productos VALUES (3, 'Audifonos Inalambricos', 25);
-    INSERT INTO Productos VALUES (4, 'Teclado', 43);
-    INSERT INTO Productos VALUES (5, 'Pendrive USB 64 GB', 114);
-    INSERT INTO Productos VALUES (6, 'Disco Duro Externo 2 TB', 28);
-    INSERT INTO Productos VALUES (7, 'PC Gamer Escritorio', 18);
+    INSERT INTO Inventario VALUES (1, 'Laptop', 76);
+    INSERT INTO Inventario VALUES (2, 'Mouse', 84);
+    INSERT INTO Inventario VALUES (3, 'Audifonos Inalambricos', 25);
+    INSERT INTO Inventario VALUES (4, 'Teclado', 43);
+    INSERT INTO Inventario VALUES (5, 'Pendrive USB 64 GB', 114);
+    INSERT INTO Inventario VALUES (6, 'Disco Duro Externo 2 TB', 28);
+    INSERT INTO Inventario VALUES (7, 'PC Gamer Escritorio', 18);
     DBMS_OUTPUT.PUT_LINE('Datos insertados en Inventario.');
 END;
 /
