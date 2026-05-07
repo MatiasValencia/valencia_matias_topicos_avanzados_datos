@@ -902,5 +902,18 @@ SELECT dc.Ciudad, dt.Anio, SUM(fp.Total) AS TotalVentas FROM Fact_Pedidos fp
 JOIN Dim_Ciudad dc ON fp.CiudadID = dc.CiudadID
 JOIN Dim_Tiempo dt ON fp.FechaID = dt.FechaID
 GROUP BY dc.Ciudad, dt.Anio;
+
+-- Ejercicio 1 Sesion 17 - Creacion del user Analista
+CREATE USER user_analista IDENTIFIED BY analista123;
+GRANT CONNECT TO user_analista;
+-- S17 - Creacion del rol
+CREATE ROLE rol_analista;
+GRANT SELECT ON Clientes TO rol_analista;
+GRANT SELECT ON Pedidos TO rol_analista;
+GRANT SELECT ON Productos TO rol_analista;
+GRANT SELECT ON DetallesPedidos TO rol_analista;
+GRANT INSERT ON Pedidos TO rol_analista;
+
+GRANT rol_analista TO user_analista;
 -- Commit final
 COMMIT;
