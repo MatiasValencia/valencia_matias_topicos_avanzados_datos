@@ -368,10 +368,12 @@ CREATE OR REPLACE TYPE BODY producto_obj AS  -- Creación del Body
     END;
 END;
 /
+COMMIT;
 
 CREATE TABLE productos_obj OF producto_obj ( -- Creación tabla del objeto
     producto_id PRIMARY KEY
 );
+COMMIT;
 
 -- Inserción de datos
 INSERT INTO productos_obj VALUES (1, 'Laptop', 1200);
@@ -381,6 +383,7 @@ INSERT INTO productos_obj VALUES (4, 'Teclado', 75);
 INSERT INTO productos_obj VALUES (5, 'Pendrive USB 64 GB', 50);
 INSERT INTO productos_obj VALUES (6, 'Disco Duro Externo 2 TB', 80);
 INSERT INTO productos_obj VALUES (7, 'PC Gamer Escritorio', 2300);
+COMMIT;
 
 -- Get info
 SELECT p.get_info() FROM productos_obj p;
@@ -618,40 +621,53 @@ CREATE OR REPLACE TYPE cliente_obj AS OBJECT ( -- Creación del objeto
 );
 /
 
-CREATE OR REPLACE TYPE BODY producto_obj AS  -- Creación del Body
+COMMIT;
+
+CREATE OR REPLACE TYPE BODY cliente_obj AS  -- Creación del Body
     MEMBER FUNCTION get_info RETURN VARCHAR2 IS
     BEGIN
-        RETURN 'ID: ' || cliente_id || ' - Nombre: ' || nombre;
-    END;
+        RETURN 'ID: ' || TO_CHAR(cliente_id) || ' - Nombre: ' || nombre;
+    END get_info;
 END;
 /
 
-CREATE TABLE clientes_obj OF cliente_obj ( -- Creación tabla del objeto
+COMMIT;
+
+CREATE TABLE t_clientes_obj OF cliente_obj ( -- Creación tabla del objeto
     cliente_id PRIMARY KEY
 );
+/
+COMMIT;
 -- Insertamos datos
-INSERT INTO clientes_obj VALUES (1, 'Juan Perez');
-INSERT INTO clientes_obj VALUES (2, 'María Gomez');
-INSERT INTO clientes_obj VALUES (3, 'Ana Lopez');
-INSERT INTO clientes_obj VALUES (4, 'Carlos Gonzalez');
-INSERT INTO clientes_obj VALUES (5, 'Jose Maria Carrasco');
-INSERT INTO clientes_obj VALUES (6, 'Guillermo Ferraz');
+INSERT INTO t_clientes_obj (cliente_id, nombre)
+SELECT ClienteID, Nombre FROM Clientes;
+COMMIT;
 
-SELECT c.get_info() FROM clientes_obj c;
+SELECT c.get_info() FROM t_clientes_obj c;
 
 -- Cursor
 DECLARE
-    CURSOR clientes_cursor IS
-        SELECT cliente_id, nombre FROM clientes_obj
+    CURSOR cliente_cursor IS
+        SELECT VALUE(c) AS clientes_obj FROM t_clientes_obj c
     v_cliente_obj cliente_obj;
 BEGIN
-    OPEN clientes_cursor;
+    OPEN cliente_cursor;
     LOOP
-        FETCH clientes_cursor INTO v_clientes_obj;
-        EXIT WHEN clientes_cursor%NOTFOUND;
+        FETCH cliente_cursor INTO v_cliente_obj;
+        EXIT WHEN cliente_cursor%NOTFOUND;
         DBMS_OUTPUT.PUT_LINE(v_cliente_obj.get_info());
     END LOOP;
-    CLOSE clientes_cursor;
+    CLOSE cliente_cursor;
+
+    IF SQL%NOTFOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No se encontraron clientes.');
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error al listar clientes: ' || SQLERRM);
+    IF cliente_cursor%ISOPEN THEN
+        CLOSE cliente_cursor;
+    END IF;
 END;
 /
 
@@ -785,8 +801,9 @@ BEGIN
 END;
 /
 
-INSERT INTO DetallesPedidos (DetalleID, PedidoID, ProductoID, Cantidad) VALUES (11, 103, 3, -4)
-INSERT INTO DetallesPedidos (DetalleID, PedidoID, ProductoID, Cantidad) VALUES (11, 103, 3, 3)
+INSERT INTO DetallesPedidos (DetalleID, PedidoID, ProductoID, Cantidad) VALUES (11, 103, 3, -4);
+INSERT INTO DetallesPedidos (DetalleID, PedidoID, ProductoID, Cantidad) VALUES (11, 103, 3, 3);
+COMMIT;
 
 -- Ejercicio 1 Sesion 13
 BEGIN
