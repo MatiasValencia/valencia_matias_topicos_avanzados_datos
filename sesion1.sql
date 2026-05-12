@@ -648,7 +648,7 @@ SELECT c.get_info() FROM t_clientes_obj c;
 -- Cursor
 DECLARE
     CURSOR cliente_cursor IS
-        SELECT VALUE(c) AS clientes_obj FROM t_clientes_obj c
+        SELECT VALUE(c) AS clientes_obj FROM t_clientes_obj c;
     v_cliente_obj cliente_obj;
 BEGIN
     OPEN cliente_cursor;
