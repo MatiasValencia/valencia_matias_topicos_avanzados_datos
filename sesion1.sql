@@ -903,6 +903,77 @@ JOIN Dim_Ciudad dc ON fp.CiudadID = dc.CiudadID
 JOIN Dim_Tiempo dt ON fp.FechaID = dt.FechaID
 GROUP BY dc.Ciudad, dt.Anio;
 
+-- Ejercicio 1 Sesion 15
+-- Creamos indice
+CREATE INDEX idx_detalles_pedido_producto ON
+DetallesPedidos(PedidoID, ProductoID);
+
+-- Consulta que use el indice
+EXPLAIN PLAN FOR
+SELECT * FROM DetallesPedidos
+WHERE PedidoID = 103 AND ProductoID = 5;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+SELECT * FROM DetallesPedidos
+WHERE PedidoID = 103 AND ProductoID = 5;
+
+-- Ejercicio 2 Sesion 15
+-- Creamos tabla Ventas particionada por hash
+CREATE TABLE Ventas (
+    VentaID NUMBER PRIMARY KEY,
+    ClienteID NUMBER,
+    Total NUMBER,
+    FechaVenta DATE
+)
+PARTITION BY HASH (ClienteID)
+PARTITIONS 4;
+
+-- Insertamos datos a la nueva tabla Ventas desde Pedidos
+INSERT INTO VENTAS (VentaID, ClienteID, Total, FechaVenta)
+SELECT PedidoID, ClienteID, Total, FechaPedido FROM Pedidos;
+
+-- Consulta que usa las particiones
+EXPLAIN PLAN FOR
+SELECT ClienteID, SUM(Total) AS TotalVentas FROM Ventas
+GROUP BY ClienteID;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+-- Ejecucion de la consola
+SELECT ClienteID, SUM(Total) AS TotalVenta FROM Ventas
+GROUP BY ClienteID;
+
+-- Ejercicio 1 Sesion 16
+-- Plan de ejecucion
+EXPLAIN PLAN FOR
+SELECT c.Nombre, COUNT(p.PedidoID) AS TotalPedidos FROM Clientes c, Pedidos p_cantidad
+WHERE c.ClienteID = p.ClienteID
+AND c.Ciudad = 'Santiago'
+AND p.FechaPedido >= TO_DATE('2025-03-01', 'YYYY-MM-DD')
+GROUP BY c.Nombre;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+-- Optimizamos, y aseguramos de que existan indices
+CREATE INDEX idx_pedidos_clienteid ON Pedidos(ClienteID);
+CREATE INDEX idx_clientes_ciudad ON Clientes(Ciudad);
+
+-- Consulta optimizada
+EXPLAIN PLAN FOR
+SELECT /*+ INDEX(c idx_clientes_clidad) INDEX(p idx_pedidos_clienteid) */ c.Nombre, COUNT(p.PedidoID) AS TotalPedidos
+FROM Clientes c
+JOIN Pedidos p ON c.ClienteID = p.ClienteID
+WHERE c.Ciudad = 'Santiago'
+AND p.FechaPedido >= TO_DATE('2025-03-01', 'YYYY-MM-DD')
+GROUP BY c.Nombre;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+-- Ejecutar consulta
+SELECT c.Nombre, COUNT(p.PedidoID) AS TotalPedidos
+FROM Clientes c
+JOIN Pedidos p ON c.ClienteID = p.ClienteID
+WHERE c.Ciudad = 'Santiago'
+AND p.FechaPedido >= TO_DATE('2025-03-01', 'YYYY-MM-DD')
+GROUP BY c.Nombre;
+
 -- Ejercicio 1 Sesion 17 - Creacion del user Analista
 CREATE USER user_analista IDENTIFIED BY analista123;
 GRANT CONNECT TO user_analista;
