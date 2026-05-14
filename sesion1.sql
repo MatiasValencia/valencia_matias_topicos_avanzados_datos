@@ -896,6 +896,7 @@ SELECT p.PedidoID, p.ClienteID, dc.CiudadID, dt.FechaID, p.Total FROM Pedidos p_
 JOIN Clientes c ON p.ClienteID = c.ClienteID
 JOIN Dim_Ciudad dc ON c.Ciudad = dc.Ciudad
 JOIN Dim_Tiempo dt ON p.FechaPedido = dt.Fecha;
+COMMIT;
 
 -- Consulta
 SELECT dc.Ciudad, dt.Anio, SUM(fp.Total) AS TotalVentas FROM Fact_Pedidos fp
@@ -916,6 +917,7 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 
 SELECT * FROM DetallesPedidos
 WHERE PedidoID = 103 AND ProductoID = 5;
+COMMIT;
 
 -- Ejercicio 2 Sesion 15
 -- Creamos tabla Ventas particionada por hash
@@ -931,6 +933,7 @@ PARTITIONS 4;
 -- Insertamos datos a la nueva tabla Ventas desde Pedidos
 INSERT INTO VENTAS (VentaID, ClienteID, Total, FechaVenta)
 SELECT PedidoID, ClienteID, Total, FechaPedido FROM Pedidos;
+COMMIT;
 
 -- Consulta que usa las particiones
 EXPLAIN PLAN FOR
@@ -974,6 +977,30 @@ WHERE c.Ciudad = 'Santiago'
 AND p.FechaPedido >= TO_DATE('2025-03-01', 'YYYY-MM-DD')
 GROUP BY c.Nombre;
 
+-- Ejercicio 2 Sesion 16
+-- Ejecucion Inicial
+EXPLAIN PLAN FOR
+SELECT p.Nombre, SUM(dp.Cantidad * p.Precio) AS TotalVentas
+FROM Productos p, DetallesPedidos dp
+WHERE p.ProductoID = dp.ProductoID
+GROUP BY p.Nombre;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+-- idx_detalles_productoid ya fue creado en el ejemplo práctico
+-- Optimizamos
+EXPLAIN PLAN FOR
+SELECT /*+ INDEX(dp idx_detalles_productoid) */ p.Nombre, SUM(dp.Cantidad * p.Precio) AS TotalVentas
+FROM Productos p
+JOIN DetallesPedidos dp ON p.ProductoID = dp.ProductoID
+GROUP BY c.Nombre;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+-- Nueva consulta
+SELECT p.Nombre, SUM(dp.Cantidad * p.Precio) AS TotalVentas
+FROM Productos p
+JOIN DetallesPedidos dp ON p.ProductoID = dp.ProductoID
+GROUP BY c.Nombre;
+
 -- Ejercicio 1 Sesion 17 - Creacion del user Analista
 CREATE USER user_analista IDENTIFIED BY analista123;
 GRANT CONNECT TO user_analista;
@@ -986,5 +1013,24 @@ GRANT SELECT ON DetallesPedidos TO rol_analista;
 GRANT INSERT ON Pedidos TO rol_analista;
 
 GRANT rol_analista TO user_analista;
+
+-- Ejercicio 2 Sesion 17
+-- Habilitamos auditoria
+CONNECT sys AS sysdba;
+AUDIT SELECT ON Clientes BY user_analista;
+AUDIT INSERT ON Pedidos BY user_analista;
+
+-- Realizamos acciones como user_analista
+CONNECT user_analista/analista123;
+SELECT * FROM Clientes;
+INSERT INTO Pedidos (PedidoID, ClienteID, Total, FechaPedido)
+VALUES (108, 2, 80, TO_DATE('2025-05-13', 'YYYY-MM-DD'));
+
+-- Registros de auditoria
+CONNECT sys AS sysdba;
+SELECT username, action_name, timestamp
+FROM dba_audit_trail
+WHERE username = 'USER_ANALISTA';
+
 -- Commit final
 COMMIT;
